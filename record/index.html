@@ -67,6 +67,21 @@ details{margin-top:12px;font-size:14.5px}
 details ol{padding-left:20px}
 code{background:var(--hanji-deep);padding:1px 6px;border-radius:5px;font-size:13px}
 kbd{border:2px solid var(--meok);border-radius:5px;padding:0 6px;font-size:12px;background:#fff}
+.btn.ai{background:var(--byeok);color:#fff}
+.item.done.ai i{background:var(--byeok)}
+.aiset{margin:14px 0 4px;border:3px solid var(--meok);border-radius:14px;background:var(--dalbit);padding:10px 16px;max-width:760px}
+.aiset summary{font-family:var(--display);font-size:18px;cursor:pointer}
+.aiset .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.aiset label{font-size:14.5px;font-weight:500}
+.aiset input[type=password],.aiset select{font:inherit;font-size:14px;padding:6px 10px;border:2px solid var(--meok);border-radius:8px;background:#fff;min-width:260px}
+.aiset input[type=range]{width:160px}
+.aiset .btn{font-size:15px;padding:6px 16px}
+.aiset .note{font-size:13.5px;color:#5A5248;margin:4px 0}
+.aipend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;background:#E4EEF3;border:2px dashed var(--byeok);border-radius:12px;padding:8px 12px;margin-bottom:10px}
+.aipend span{font-size:14px;font-weight:500;color:var(--gamcheong)}
+.aipend .btn{font-size:16px;padding:6px 16px}
+.legend{font-size:13px;color:#5A5248;margin:6px 0 0}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;border:2px solid var(--meok);vertical-align:-1px;margin:0 4px 0 10px}
 @media (max-width:800px){ .studio{grid-template-columns:1fr} .list{max-height:40vh} .big{font-size:72px} }
 </style>
 </head>
@@ -81,10 +96,44 @@ kbd{border:2px solid var(--meok);border-radius:5px;padding:0 6px;font-size:12px;
       <li>조용한 방에서, 입과 마이크 사이를 한 뼘 정도로 두세요.</li>
       <li>처음부터 끝까지 같은 목소리 크기와 같은 속도로 해 주세요. 앞뒤 빈 소리와 음량은 도구가 자동으로 맞춥니다.</li>
       <li>자음 소리 [그], [느]와 받침 소리 [윽], [은]은 짧게 끊어서 해 주세요. 아이가 듣는 건 글자 이름이 아니라 소리입니다.</li>
-      <li>단축키: <kbd>스페이스</kbd> 녹음 시작과 끝, <kbd>P</kbd> 다시 듣기, <kbd>→</kbd> 다음, <kbd>←</kbd> 이전</li>
+      <li>사람 목소리 대신 AI 목소리로 채워도 됩니다. 아래 AI 목소리 설정에서 한 번만 준비하면, 말마다 AI 목소리 단추로 만들어 들어 보고 저장할 수 있어요. AI로 저장한 말도 나중에 녹음하면 사람 목소리로 바뀝니다.</li>
+      <li>단축키: <kbd>스페이스</kbd> 녹음 시작과 끝, <kbd>P</kbd> 다시 듣기, <kbd>→</kbd> 다음, <kbd>←</kbd> 이전, <kbd>A</kbd> AI 목소리 만들기, <kbd>S</kbd> AI 목소리 저장</li>
     </ul>
     <button class="btn main" id="micBtn">마이크 켜기</button>
     <span id="micState" class="opt"></span>
+    <details class="aiset" id="aiSet">
+      <summary>AI 목소리 설정</summary>
+      <div class="row">
+        <label for="aiKey">Google API 키</label>
+        <input type="password" id="aiKey" autocomplete="off" spellcheck="false" placeholder="AIza로 시작하는 키">
+        <button class="btn main" id="aiKeySave">저장</button>
+        <button class="btn" id="aiKeyDel">키 지우기</button>
+      </div>
+      <p class="note" id="aiKeyState"></p>
+      <div class="row">
+        <label for="aiVoice">목소리</label>
+        <select id="aiVoice"><option value="">먼저 키를 넣어 주세요</option></select>
+        <button class="btn" id="aiTest">들어 보기</button>
+      </div>
+      <p class="note">Chirp3-HD가 가장 사람 같고, Neural2와 Wavenet이 그다음, Standard가 가장 기계 같은 소리입니다. 처음부터 끝까지 한 목소리로 맞추는 것이 좋아요.</p>
+      <div class="row">
+        <label for="aiRate">빠르기 <b id="aiRateV"></b></label>
+        <input type="range" id="aiRate" min="0.6" max="1.2" step="0.05">
+        <label for="aiPitch">높낮이 <b id="aiPitchV"></b></label>
+        <input type="range" id="aiPitch" min="-6" max="6" step="1">
+      </div>
+      <p class="note">아이들이 듣기 좋게 빠르기는 0.85 정도를 권합니다. Chirp3-HD 목소리는 높낮이 조절이 되지 않아 빠르기만 적용됩니다.</p>
+      <details>
+        <summary>API 키 만드는 법 (한 번만)</summary>
+        <ol>
+          <li><code>console.cloud.google.com</code> 에서 프로젝트를 하나 만들고 결제 계정을 연결합니다. 무료 한도 안에서는 요금이 나오지 않지만, 연결은 해 두어야 음성 기능이 켜집니다.</li>
+          <li>API 및 서비스, 라이브러리에서 Cloud Text-to-Speech API를 찾아 사용 설정합니다.</li>
+          <li>API 및 서비스, 사용자 인증 정보에서 API 키를 만듭니다.</li>
+          <li>그 키의 제한 설정에서 애플리케이션 제한은 웹사이트로 하고 <code>https://hyeonhoyu.github.io/*</code> 를 넣습니다. API 제한은 Cloud Text-to-Speech API 하나만 고릅니다. 이렇게 하면 키가 새어 나가도 다른 곳에서는 쓸 수 없어요.</li>
+          <li>키를 위 칸에 붙여 넣고 저장합니다. 키는 이 브라우저에만 남고, 코드나 저장소, 내려받는 zip에는 들어가지 않습니다.</li>
+        </ol>
+      </details>
+    </details>
     <div id="loadErr"></div>
   </section>
 
@@ -97,12 +146,20 @@ kbd{border:2px solid var(--meok);border-radius:5px;padding:0 6px;font-size:12px;
       <div class="meter" aria-hidden="true"><i id="meterFill"></i></div>
       <div class="controls">
         <button class="btn rec" id="recBtn">녹음</button>
+        <button class="btn ai" id="aiBtn">AI 목소리</button>
         <button class="btn" id="playBtn">듣기</button>
         <button class="btn" id="prevBtn">이전</button>
         <button class="btn" id="nextBtn">다음</button>
         <button class="btn" id="delBtn">이 녹음 지우기</button>
       </div>
-      <label class="opt"><input type="checkbox" id="auto" checked> 녹음이 끝나면 한 번 들려주고 다음으로 넘어가기</label>
+      <div class="aipend" id="aiPend" hidden>
+        <span>AI 목소리를 만들었어요. 아직 저장 전이에요.</span>
+        <button class="btn main" id="aiCommit">이걸로 저장</button>
+        <button class="btn" id="aiHear">다시 듣기</button>
+        <button class="btn" id="aiAgain">다시 만들기</button>
+      </div>
+      <label class="opt"><input type="checkbox" id="auto" checked> 녹음이 끝나면(AI 목소리는 저장하면) 다음으로 넘어가기</label>
+      <p class="legend">목록 점 색깔:<i style="background:var(--ssuk)"></i>사람 녹음<i style="background:var(--byeok)"></i>AI 목소리<i></i>아직 없음</p>
       <p id="status" aria-live="polite"></p>
     </div>
   </section>
@@ -110,6 +167,7 @@ kbd{border:2px solid var(--meok);border-radius:5px;padding:0 6px;font-size:12px;
   <section class="export" id="exportSec" hidden>
     <p id="count"></p>
     <button class="btn main" id="exportBtn">audio 폴더 내려받기 (zip)</button>
+    <button class="btn ai" id="aiFill">녹음 없는 말 모두 AI로 채우기</button>
     <div id="dlParts" class="controls" style="margin-top:12px"></div>
     <details>
       <summary>저장소에 올리는 법</summary>
@@ -134,6 +192,9 @@ kbd{border:2px solid var(--meok);border-radius:5px;padding:0 6px;font-size:12px;
    처리: 녹음 → 앞뒤 빈 소리 자르기 → 음량 맞추기 → 22,050Hz 모노 16비트 WAV.
    WAV는 아이폰, 안드로이드, 카카오톡 속 브라우저까지 어디서나 재생됩니다.
    저장: 이 브라우저의 IndexedDB. 내보내기: 압축하지 않는 zip(소리 파일은 이미 작습니다).
+   AI 목소리: Google Cloud Text-to-Speech 를 브라우저에서 바로 부릅니다. 키는 localStorage 에만 두고
+   코드에는 넣지 않습니다. 만든 소리도 사람 녹음과 똑같이 다듬어 같은 이름의 WAV 로 저장하니,
+   사이트 쪽은 바꿀 것이 없습니다. AI로 만든 말은 manifest.json 의 ai 목록에 따로 적어 둡니다.
    ══════════════════════════════════════════════════════════════ */
 const OUT_RATE = 22050;
 const $ = id => document.getElementById(id);
@@ -141,6 +202,8 @@ let clips = [], cur = 0, saved = new Set();
 let stream = null, actx = null, analyser = null, recorder = null, chunks = [], recording = false, safetyTimer = null;
 let lastAudio = null;
 const live = new Set();
+const aiIds = new Set();   /* 이 브라우저에서 AI 목소리로 저장한 말 */
+const liveAi = new Set();  /* 사이트에 AI 목소리로 올라가 있는 말 */
 const have = id => saved.has(id) || live.has(id);
 
 function status(msg, kind){ const s = $('status'); s.textContent = msg || ''; s.className = kind || ''; }
@@ -205,6 +268,7 @@ async function loadList(){
     const r = await fetch('../audio/manifest.json', {cache: 'no-cache'});
     const j = r.ok ? await r.json() : null;
     if(j && j.clips) Object.keys(j.clips).forEach(id => live.add(id));
+    if(j && j.ai) Object.keys(j.ai).forEach(id => liveAi.add(id));
   } catch(e) {}
   if(!clips.length){
     $('loadErr').innerHTML = '<div class="err">녹음 목록을 읽지 못했어요. 이 도구는 파일을 직접 열면 동작하지 않고, 사이트 주소(예: https://hyeonhoyu.github.io/daltokki/record/)에서 열어야 합니다.</div>';
@@ -212,7 +276,7 @@ async function loadList(){
   }
   if(lists.some(l => !l.length))
     $('loadErr').innerHTML = '<div class="warn">한 달의 목록을 읽지 못했어요. 읽은 달만 보여 줍니다. 새로 고침하면 다시 읽어요.</div>';
-  try { (await idbAll()).forEach(r => saved.add(r.id)); } catch(e) {
+  try { (await idbAll()).forEach(r => { saved.add(r.id); if(r.src === 'ai') aiIds.add(r.id); }); } catch(e) {
     $('loadErr').innerHTML = '<div class="warn">이 브라우저에서는 녹음을 저장해 둘 수 없어요. 창을 닫기 전에 꼭 내려받기를 해 주세요.</div>';
   }
   const firstMissing = clips.findIndex(c => !have(c.id));
@@ -237,7 +301,8 @@ function renderList(){
       box.append(hd);
     }
     const b = document.createElement('button');
-    b.className = 'item' + (have(c.id) ? ' done' : '') + (i === cur ? ' cur' : '');
+    const isAi = saved.has(c.id) ? aiIds.has(c.id) : liveAi.has(c.id);
+    b.className = 'item' + (have(c.id) ? ' done' : '') + (have(c.id) && isAi ? ' ai' : '') + (i === cur ? ' cur' : '');
     b.innerHTML = `<i></i><span class="t"></span><small></small>`;
     b.querySelector('.t').textContent = c.text;
     b.querySelector('small').textContent = c.label;
@@ -247,13 +312,18 @@ function renderList(){
   const onSite = clips.filter(c => live.has(c.id) && !saved.has(c.id)).length;
   $('count').textContent = '모두 ' + clips.length + '개 가운데 ' + clips.filter(c => have(c.id)).length + '개가 있어요.'
     + (onSite ? ' 그 가운데 ' + onSite + '개는 사이트에 이미 올라가 있어서, 다시 녹음하지 않아도 돼요.' : '')
+    + (aiIds.size ? ' 이 브라우저의 것 가운데 ' + aiIds.size + '개는 AI 목소리예요.' : '')
     + ' 내려받기에는 이 브라우저에서 녹음한 것만 담깁니다.';
   const curEl = box.querySelector('.item.cur');
   if(curEl) curEl.scrollIntoView({block: 'nearest'});
 }
 function show(){
   const c = clips[cur]; if(!c) return;
-  $('meta').textContent = where(c) + ' · ' + c.label + (saved.has(c.id) ? ' · 녹음됨' : live.has(c.id) ? ' · 사이트에 있음' : '');
+  $('meta').textContent = where(c) + ' · ' + c.label
+    + (saved.has(c.id) ? (aiIds.has(c.id) ? ' · AI 목소리로 저장됨' : ' · 녹음됨')
+       : live.has(c.id) ? (liveAi.has(c.id) ? ' · 사이트에 AI 목소리로 있음' : ' · 사이트에 있음') : '');
+  if(aiPending && aiPending.id !== c.id) aiPending = null;
+  $('aiPend').hidden = !aiPending;
   $('big').textContent = c.text;
   $('say').textContent = c.say;
   $('playBtn').disabled = !saved.has(c.id);
@@ -278,7 +348,7 @@ async function micOn(){
   } catch(e) {
     $('micState').textContent = '마이크를 쓸 수 없어요. 브라우저 주소창 옆에서 마이크 권한을 허용해 주세요.'; return false;
   }
-  actx = new (window.AudioContext || window.webkitAudioContext)();
+  ensureCtx();
   const src = actx.createMediaStreamSource(stream);
   analyser = actx.createAnalyser(); analyser.fftSize = 1024; src.connect(analyser);
   const data = new Float32Array(analyser.fftSize);
@@ -296,6 +366,8 @@ async function micOn(){
 /* ---- 녹음 ---- */
 async function toggleRec(){
   if(recording){ stopRec(); return; }
+  if(filling) return;
+  aiPending = null; $('aiPend').hidden = true;
   if(!(await micOn())) return;
   if(actx.state === 'suspended') await actx.resume();
   /* 스피커로 나오던 소리가 다음 녹음에 섞이지 않게 먼저 멈춥니다. */
@@ -325,7 +397,7 @@ async function onStopped(){
     const blob = new Blob(chunks, {type: recorder.mimeType || 'audio/webm'});
     const wav = await processBlob(blob);
     await idbPut({id: c.id, text: c.text, wav: wav.buffer, at: Date.now()});
-    saved.add(c.id);
+    saved.add(c.id); aiIds.delete(c.id); aiPending = null;
     renderList(); show();
     const secs = (wav.length - 44) / 2 / OUT_RATE;
     /* 한 음절은 보통 1초 안쪽입니다. 너무 길면 두 번 말했거나 잡음이 들어간 것입니다. */
@@ -344,18 +416,20 @@ async function onStopped(){
 }
 
 /* 앞뒤 빈 소리 자르기, 음량 맞추기, 22,050Hz 모노로 바꾸기 */
-async function processBlob(blob){
+async function processBlob(blob, opts = {}){
   const arr = await blob.arrayBuffer();
   let buf;
+  ensureCtx();
   try { buf = await actx.decodeAudioData(arr); }
   catch(e) { throw new Error('녹음 형식을 읽지 못했어요. 다른 브라우저로 해 보세요.'); }
   const sr = buf.sampleRate, len = buf.length, ch = buf.numberOfChannels;
-  if(len < sr * 0.35) throw new Error('너무 짧아요. 말하고 나서 끝내기를 눌러 주세요.');
+  if(!opts.ai && len < sr * 0.35) throw new Error('너무 짧아요. 말하고 나서 끝내기를 눌러 주세요.');
   const mono = new Float32Array(len);
   for(let c = 0; c < ch; c++){ const d = buf.getChannelData(c); for(let i = 0; i < len; i++) mono[i] += d[i] / ch; }
   /* 10ms 단위로 크기를 재되, 키보드 누르는 소리가 섞이는 처음과 끝 0.15초는 빼고 찾습니다. */
   const win = Math.max(1, Math.floor(sr * 0.01));
-  const guard = Math.floor(0.15 * sr / win);
+  /* AI 목소리에는 키보드 소리가 없으니 처음과 끝을 빼지 않습니다. */
+  const guard = opts.ai ? 0 : Math.floor(0.15 * sr / win);
   const rms = [];
   for(let i = 0; i < len; i += win){
     let s = 0; const e = Math.min(len, i + win);
@@ -415,7 +489,7 @@ async function playCurrent(){
 }
 async function deleteCurrent(){
   const c = clips[cur]; if(!c) return;
-  await idbDel(c.id); saved.delete(c.id); renderList(); show(); status('지웠어요.');
+  await idbDel(c.id); saved.delete(c.id); aiIds.delete(c.id); renderList(); show(); status('지웠어요.');
 }
 
 /* ---- 내보내기: 압축하지 않는 zip ---- */
@@ -449,18 +523,23 @@ function makeZip(files){
 async function exportZip(){
   const all = await idbAll();
   if(!all.length){ status('아직 녹음한 것이 없어요.', 'bad'); return; }
-  const files = [], map = {}, texts = {};
+  const files = [], map = {}, texts = {}, aiMap = {};
   /* 사이트에 이미 올라간 목록을 먼저 넣고, 이 브라우저의 녹음을 더합니다. */
   try {
     const r = await fetch('../audio/manifest.json', {cache: 'no-cache'});
     const live = r.ok ? await r.json() : null;
     if(live && live.clips) Object.keys(live.clips).forEach(id => { map[id] = 1; if(live.texts && live.texts[id]) texts[id] = live.texts[id]; });
+    if(live && live.ai) Object.keys(live.ai).forEach(id => { aiMap[id] = live.ai[id]; });
   } catch(e) {}
   const liveCount = Object.keys(map).length;
-  all.forEach(r => { files.push({name: 'audio/' + r.id + '.wav', data: new Uint8Array(r.wav)}); map[r.id] = 1; texts[r.id] = r.text; });
+  all.forEach(r => {
+    files.push({name: 'audio/' + r.id + '.wav', data: new Uint8Array(r.wav)}); map[r.id] = 1; texts[r.id] = r.text;
+    /* 사람이 다시 녹음한 말은 AI 목록에서 뺍니다. */
+    if(r.src === 'ai') aiMap[r.id] = r.voice || 'ai'; else delete aiMap[r.id];
+  });
   const complete = clips.every(c => map[c.id]);
   const missing = clips.filter(c => !map[c.id]);
-  const manifest = {version: 1, sampleRate: OUT_RATE, complete, count: Object.keys(map).length, updated: new Date().toISOString(), clips: map, texts};
+  const manifest = {version: 1, sampleRate: OUT_RATE, complete, count: Object.keys(map).length, updated: new Date().toISOString(), clips: map, texts, ai: aiMap};
   const manFile = {name: 'audio/manifest.json', data: new TextEncoder().encode(JSON.stringify(manifest, null, 1))};
   const done = (liveCount ? ' 사이트에 이미 있던 ' + liveCount + '개도 목록에 함께 적었어요.' : '')
     + (complete ? ' 모든 달의 녹음이 다 모였어요.'
@@ -490,6 +569,160 @@ function download(blob, name){
   document.body.append(a); a.click(); a.remove();
 }
 
+/* ---- AI 목소리 (Google Cloud Text-to-Speech) ---- */
+function ensureCtx(){ if(!actx) actx = new (window.AudioContext || window.webkitAudioContext)(); return actx; }
+const AI_STORE = 'daltokki-tts';
+const TTS = 'https://texttospeech.googleapis.com/v1/';
+const aiCfg = {key: '', voice: '', rate: 0.85, pitch: 0};
+try { Object.assign(aiCfg, JSON.parse(localStorage.getItem(AI_STORE) || '{}')); } catch(e) {}
+function aiKeep(){ try { localStorage.setItem(AI_STORE, JSON.stringify(aiCfg)); } catch(e) {} }
+let aiPending = null, filling = false;
+const noPitch = v => /chirp/i.test(v);
+
+function aiErr(j, code){
+  const m = (j && j.error && j.error.message) || '';
+  if(/API key not valid|API_KEY_INVALID/i.test(m)) return 'API 키가 맞지 않아요. 복사할 때 빠진 글자가 없는지 봐 주세요.';
+  if(/referer|referrer/i.test(m)) return '키의 웹사이트 제한에 이 주소가 없어요. https://hyeonhoyu.github.io/* 를 넣어 주세요.';
+  if(/billing/i.test(m)) return 'Google Cloud 프로젝트에 결제 계정이 연결되어 있지 않아요.';
+  if(/has not been used|is disabled|SERVICE_DISABLED/i.test(m)) return 'Cloud Text-to-Speech API가 켜져 있지 않아요. 켠 뒤 몇 분 기다렸다 다시 해 주세요.';
+  if(/blocked|not allowed|API_KEY_SERVICE_BLOCKED/i.test(m)) return '이 키로는 Text-to-Speech를 쓸 수 없게 제한되어 있어요. 키의 API 제한을 확인해 주세요.';
+  if(code === 429 || /quota|rate/i.test(m)) return '잠깐 너무 많이 요청했어요. 조금 뒤에 다시 해 주세요.';
+  return 'AI 목소리를 만들지 못했어요.' + (m ? ' (' + m + ')' : '');
+}
+async function aiLoadVoices(){
+  const sel = $('aiVoice');
+  $('aiKeyState').textContent = aiCfg.key ? '키가 이 브라우저에 저장되어 있어요.' : '키를 넣으면 목소리 목록을 불러옵니다.';
+  if(!aiCfg.key){ sel.innerHTML = '<option value="">먼저 키를 넣어 주세요</option>'; return; }
+  sel.innerHTML = '<option value="">목소리를 불러오는 중</option>';
+  try {
+    const r = await fetch(TTS + 'voices?languageCode=ko-KR&key=' + encodeURIComponent(aiCfg.key));
+    const j = await r.json().catch(() => ({}));
+    if(!r.ok) throw new Error(aiErr(j, r.status));
+    const rank = n => /Chirp3/i.test(n) ? 0 : /Chirp/i.test(n) ? 1 : /Neural2/i.test(n) ? 2 : /Wavenet/i.test(n) ? 3 : /Standard/i.test(n) ? 5 : 4;
+    const vs = (j.voices || []).filter(v => (v.languageCodes || []).includes('ko-KR'))
+      .sort((a, b) => rank(a.name) - rank(b.name) || a.name.localeCompare(b.name));
+    if(!vs.length) throw new Error('한국어 목소리를 찾지 못했어요.');
+    const G = {FEMALE: '여자', MALE: '남자'};
+    sel.innerHTML = '';
+    vs.forEach(v => {
+      const o = document.createElement('option');
+      o.value = v.name; o.textContent = v.name.replace('ko-KR-', '') + (G[v.ssmlGender] ? ' (' + G[v.ssmlGender] + ')' : '');
+      sel.append(o);
+    });
+    if(!vs.some(v => v.name === aiCfg.voice)){
+      const pick = vs.find(v => /Neural2/i.test(v.name) && v.ssmlGender === 'FEMALE') || vs[0];
+      aiCfg.voice = pick.name; aiKeep();
+    }
+    sel.value = aiCfg.voice;
+    $('aiKeyState').textContent = '키가 이 브라우저에 저장되어 있고, 한국어 목소리 ' + vs.length + '개를 불러왔어요.';
+  } catch(e) {
+    sel.innerHTML = '<option value="">목소리를 불러오지 못했어요</option>';
+    $('aiKeyState').textContent = e.message;
+  }
+  aiSliders();
+}
+function aiSliders(){
+  $('aiRate').value = aiCfg.rate; $('aiRateV').textContent = Number(aiCfg.rate).toFixed(2);
+  $('aiPitch').value = aiCfg.pitch; $('aiPitchV').textContent = aiCfg.pitch > 0 ? '+' + aiCfg.pitch : aiCfg.pitch;
+  $('aiPitch').disabled = noPitch(aiCfg.voice);
+}
+function aiReady(){
+  if(aiCfg.key && aiCfg.voice) return true;
+  $('aiSet').open = true; $('aiSet').scrollIntoView({block: 'start', behavior: 'smooth'});
+  status('먼저 위의 AI 목소리 설정에서 키를 넣고 목소리를 골라 주세요.', 'bad');
+  return false;
+}
+async function aiSynth(text){
+  const audioConfig = {audioEncoding: 'LINEAR16', speakingRate: Number(aiCfg.rate)};
+  if(!noPitch(aiCfg.voice)) audioConfig.pitch = Number(aiCfg.pitch);
+  const r = await fetch(TTS + 'text:synthesize?key=' + encodeURIComponent(aiCfg.key), {
+    method: 'POST', headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({input: {text}, voice: {languageCode: 'ko-KR', name: aiCfg.voice}, audioConfig})
+  });
+  const j = await r.json().catch(() => ({}));
+  if(!r.ok || !j.audioContent) throw new Error(aiErr(j, r.status));
+  const bin = atob(j.audioContent), u8 = new Uint8Array(bin.length);
+  for(let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+  /* 사람 녹음과 똑같이 앞뒤 빈 소리를 자르고 음량과 형식을 맞춥니다. */
+  return processBlob(new Blob([u8], {type: 'audio/wav'}), {ai: true});
+}
+async function aiMake(){
+  const c = clips[cur];
+  if(!c || filling || recording || !aiReady()) return;
+  if(lastAudio){ try { lastAudio.onended = null; lastAudio.pause(); } catch(e) {} }
+  $('aiBtn').disabled = true; $('aiAgain').disabled = true;
+  status('AI 목소리를 만드는 중이에요.');
+  try {
+    const wav = await aiSynth(c.text);
+    if(clips[cur] !== c) return;
+    aiPending = {id: c.id, text: c.text, wav, voice: aiCfg.voice};
+    $('aiPend').hidden = false;
+    status('들어 보고 마음에 들면 이걸로 저장을 눌러 주세요.');
+    playBytes(wav);
+  } catch(e) {
+    status(e.message, 'bad');
+  } finally {
+    $('aiBtn').disabled = false; $('aiAgain').disabled = false;
+  }
+}
+async function aiCommit(){
+  if(!aiPending) return;
+  const p = aiPending;
+  try {
+    await idbPut({id: p.id, text: p.text, wav: p.wav.buffer, at: Date.now(), src: 'ai', voice: p.voice});
+  } catch(e) { status('저장하지 못했어요. 내려받기 전에 창을 닫지 마세요.', 'bad'); return; }
+  saved.add(p.id); aiIds.add(p.id); aiPending = null;
+  if($('auto').checked && clips[cur] && clips[cur].id === p.id && cur < clips.length - 1) go(1);
+  else { renderList(); show(); }
+  status('AI 목소리로 저장했어요.', 'good');
+}
+async function aiFillAll(){
+  if(filling){ filling = false; return; }
+  if(recording || !aiReady()) return;
+  const todo = clips.filter(c => !have(c.id));
+  if(!todo.length){ status('비어 있는 말이 없어요.', 'good'); return; }
+  if(!confirm('녹음이 없는 말 ' + todo.length + '개를 AI 목소리(' + aiCfg.voice.replace('ko-KR-', '') + ')로 채울까요?\n사람 녹음과 사이트에 이미 올라간 소리는 건드리지 않아요.')) return;
+  filling = true; $('aiFill').textContent = '멈추기';
+  let ok = 0, fail = 0, lastErr = '';
+  for(let i = 0; i < todo.length && filling; i++){
+    const c = todo[i];
+    status('AI 목소리로 채우는 중: ' + (i + 1) + ' / ' + todo.length + '   ' + c.text);
+    try {
+      const wav = await aiSynth(c.text);
+      await idbPut({id: c.id, text: c.text, wav: wav.buffer, at: Date.now(), src: 'ai', voice: aiCfg.voice});
+      saved.add(c.id); aiIds.add(c.id); ok++;
+      if(ok % 10 === 0) renderList();
+    } catch(e) {
+      fail++; lastErr = e.message;
+      /* 키나 설정 문제면 처음부터 계속 실패하니 바로 멈춥니다. */
+      if(ok === 0 && fail >= 3) break;
+    }
+  }
+  const stopped = !filling;
+  filling = false; $('aiFill').textContent = '녹음 없는 말 모두 AI로 채우기';
+  renderList(); show();
+  status((stopped ? '멈췄어요. ' : '') + ok + '개를 AI 목소리로 채웠어요.'
+    + (fail ? ' ' + fail + '개는 만들지 못했어요. ' + lastErr : '')
+    + (ok ? ' 목록에서 파란 점을 눌러 들어 볼 수 있어요.' : ''), fail && !ok ? 'bad' : 'good');
+}
+$('aiKey').value = aiCfg.key;
+$('aiKeySave').addEventListener('click', () => { aiCfg.key = $('aiKey').value.trim(); aiKeep(); aiLoadVoices(); });
+$('aiKeyDel').addEventListener('click', () => { aiCfg.key = ''; $('aiKey').value = ''; aiKeep(); aiLoadVoices(); });
+$('aiVoice').addEventListener('change', e => { aiCfg.voice = e.target.value; aiKeep(); aiSliders(); });
+$('aiRate').addEventListener('input', e => { aiCfg.rate = Number(e.target.value); aiKeep(); aiSliders(); });
+$('aiPitch').addEventListener('input', e => { aiCfg.pitch = Number(e.target.value); aiKeep(); aiSliders(); });
+$('aiTest').addEventListener('click', async () => {
+  if(!aiReady()) return;
+  try { playBytes(await aiSynth('안녕하세요. 저는 달토끼예요')); $('aiKeyState').textContent = '잘 들리면 준비가 끝났어요.'; }
+  catch(e) { $('aiKeyState').textContent = e.message; }
+});
+$('aiBtn').addEventListener('click', e => { e.currentTarget.blur(); aiMake(); });
+$('aiAgain').addEventListener('click', e => { e.currentTarget.blur(); aiMake(); });
+$('aiHear').addEventListener('click', e => { e.currentTarget.blur(); if(aiPending) playBytes(aiPending.wav); });
+$('aiCommit').addEventListener('click', e => { e.currentTarget.blur(); aiCommit(); });
+$('aiFill').addEventListener('click', aiFillAll);
+aiSliders(); aiLoadVoices();
+
 /* ---- 버튼과 단축키 ---- */
 $('micBtn').addEventListener('click', micOn);
 $('recBtn').addEventListener('click', e => { e.currentTarget.blur(); toggleRec(); });
@@ -499,11 +732,14 @@ $('nextBtn').addEventListener('click', e => { e.currentTarget.blur(); go(1); });
 $('delBtn').addEventListener('click', e => { e.currentTarget.blur(); deleteCurrent(); });
 $('exportBtn').addEventListener('click', exportZip);
 document.addEventListener('keydown', e => {
-  if(!clips.length || e.target.tagName === 'INPUT') return;
+  if(!clips.length || ['INPUT', 'SELECT', 'SUMMARY'].includes(e.target.tagName)) return;
+  if(filling) return;
   if(e.code === 'Space'){ e.preventDefault(); if(document.activeElement) document.activeElement.blur(); if(!e.repeat) toggleRec(); }
   else if(e.key === 'p' || e.key === 'P'){ playCurrent(); }
   else if(e.key === 'ArrowRight'){ e.preventDefault(); go(1); }
   else if(e.key === 'ArrowLeft'){ e.preventDefault(); go(-1); }
+  else if(e.key === 'a' || e.key === 'A'){ aiMake(); }
+  else if((e.key === 's' || e.key === 'S') && aiPending){ aiCommit(); }
 });
 document.addEventListener('keyup', e => { if(e.code === 'Space') e.preventDefault(); });
 
