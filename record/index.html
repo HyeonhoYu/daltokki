@@ -119,10 +119,11 @@ kbd{border:2px solid var(--meok);border-radius:5px;padding:0 6px;font-size:12px;
         <select id="aiModel">
           <option value="gemini-3.8-flash-tts">Gemini 3.8 Flash TTS (발음과 표현이 가장 좋음)</option>
           <option value="gemini-3.8-flash-lite-tts">Gemini 3.8 Flash-Lite TTS (빠르고 저렴함)</option>
-          <option value="gemini-2.5-flash-tts">Gemini 2.5 Flash TTS (한도가 따로라 3.8이 막혔을 때)</option>
+          <option value="gemini-2.5-flash-tts">Gemini 2.5 Flash TTS (하루 100개, 한도 따로)</option>
+          <option value="gemini-2.5-pro-tts">Gemini 2.5 Pro TTS (하루 50개, 한도 따로)</option>
         </select>
       </div>
-      <p class="note">TTS 모델은 모델마다 하루 한도(Tier 1에서 100개)와 분당 한도(10개)가 따로 있어요. 한 모델이 하루 한도에 걸리면 여기서 다른 모델로 바꾸고 이어서 채우면 됩니다. 한도는 태평양 시간 자정(인디애나 새벽 3시쯤)에 다시 채워집니다.</p>
+      <p class="note">TTS 모델은 모델마다 하루 한도(Tier 1에서 Flash 계열 100개, 2.5 Pro 50개)와 분당 한도(10개)가 따로 있어요. 한 모델이 하루 한도에 걸리면 여기서 다른 모델로 바꾸고 이어서 채우면 됩니다. 한도는 태평양 시간 자정(인디애나 새벽 3시쯤)에 다시 채워집니다.</p>
       <div class="row">
         <label for="aiVoice">목소리</label>
         <select id="aiVoice"></select>
@@ -332,10 +333,14 @@ function renderList(){
     box.append(b);
   });
   const onSite = clips.filter(c => live.has(c.id) && !saved.has(c.id)).length;
-  $('count').textContent = '모두 ' + clips.length + '개 가운데 ' + clips.filter(c => have(c.id)).length + '개가 있어요.'
-    + (onSite ? ' 그 가운데 ' + onSite + '개는 사이트에 이미 올라가 있어서, 다시 녹음하지 않아도 돼요.' : '')
-    + (aiIds.size ? ' 이 브라우저의 것 가운데 ' + aiIds.size + '개는 AI 목소리예요.' : '')
-    + ' 내려받기에는 이 브라우저에서 녹음한 것만 담깁니다.';
+  const total = clips.length, doneN = clips.filter(c => have(c.id)).length;
+  const inBrowser = clips.filter(c => saved.has(c.id)).length;
+  const aiN = clips.filter(c => saved.has(c.id) && aiIds.has(c.id)).length;
+  const fmt = n => n.toLocaleString('ko-KR');
+  $('count').textContent = '전체 ' + fmt(total) + '개 중 ' + fmt(doneN) + '개 완성, ' + fmt(total - doneN) + '개 남음. '
+    + '이 브라우저에 저장된 소리 ' + fmt(inBrowser) + '개 (AI ' + fmt(aiN) + '개, 사람 녹음 ' + fmt(inBrowser - aiN) + '개)'
+    + (onSite ? ', 사이트에만 올라가 있는 소리 ' + fmt(onSite) + '개' : '') + '. '
+    + '내려받기 zip에는 이 브라우저에 저장된 소리만 들어가요.';
   const curEl = box.querySelector('.item.cur');
   if(curEl) curEl.scrollIntoView({block: 'nearest'});
 }
