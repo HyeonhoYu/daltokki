@@ -59,7 +59,7 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.25}
 .hero-art::before{content:'';position:absolute;left:50%;top:48%;width:82%;max-width:300px;aspect-ratio:1;transform:translate(-50%,-50%);
   border-radius:50%;background:radial-gradient(circle,rgba(245,230,189,.28) 0%,rgba(245,230,189,.08) 55%,rgba(245,230,189,0) 72%);pointer-events:none}
 .hero-img{position:relative;width:100%;max-width:340px;height:auto;display:block;animation:bob 4.5s ease-in-out infinite;
-  filter:drop-shadow(0 14px 18px rgba(0,0,0,.35))}
+  filter:drop-shadow(0 6px 6px rgba(0,0,0,.28))}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 
 /* 섹션 공통 */
@@ -99,7 +99,7 @@ a.month:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--meok)}
 .friend{background:var(--hanji);border:3px solid var(--meok);border-radius:18px;padding:16px 18px 20px}
 .friend .fig{background:var(--dalbit);border:3px solid var(--meok);border-radius:14px;margin-bottom:12px}
 .friend .fig{display:flex;justify-content:center;align-items:flex-end;padding:12px 8px 6px;overflow:hidden}
-.friend .fig img{display:block;width:auto;height:170px;max-width:100%;object-fit:contain;filter:drop-shadow(0 4px 4px rgba(34,31,28,.18));transition:transform .25s ease}
+.friend .fig img{display:block;width:auto;height:170px;max-width:100%;object-fit:contain;filter:drop-shadow(0 1.5px 1px rgba(34,31,28,.16));transition:transform .25s ease}
 .friend:hover .fig img{transform:translateY(-4px) rotate(-2deg)}
 .friend h3{font-size:28px;margin:0}
 .friend .role{font-size:13.5px;font-weight:700;color:var(--juhong);margin:0 0 8px}
@@ -215,7 +215,7 @@ footer .coffeelink svg{width:18px;height:18px;vertical-align:-3px}
       <p class="checklink" id="checkLink"><a href="first-moon/?check=1">한글을 조금 읽을 줄 알아요</a> &nbsp;빠른 확인으로 시작할 밤을 찾아요.</p>
     </div>
     <div class="hero-art">
-      <img class="hero-img" src="assets/chars/moon-rabbit.webp" width="324" height="336" alt="보름달 앞에서 떡방아를 찧는 토끼 토리" fetchpriority="high">
+      <img class="hero-img" src="assets/chars/moon-rabbit.webp?v=2" width="324" height="336" alt="보름달 앞에서 떡방아를 찧는 토끼 토리" fetchpriority="high">
     </div>
   </div>
 </header>
@@ -349,12 +349,12 @@ footer .coffeelink svg{width:18px;height:18px;vertical-align:-3px}
   </div>
 </footer>
 
-<script src="content/second-moon.js?v=20261101"></script>
-<script src="content/third-moon.js?v=20261101"></script>
-<script src="content/fourth-moon.js?v=20261101"></script>
-<script src="content/fifth-moon.js?v=20261101"></script>
-<script src="content/sixth-moon.js?v=20261101"></script>
-<script src="content/seventh-moon.js?v=20261101"></script>
+<script src="content/second-moon.js?v=20261102"></script>
+<script src="content/third-moon.js?v=20261102"></script>
+<script src="content/fourth-moon.js?v=20261102"></script>
+<script src="content/fifth-moon.js?v=20261102"></script>
+<script src="content/sixth-moon.js?v=20261102"></script>
+<script src="content/seventh-moon.js?v=20261102"></script>
 <script>
 /* ---- 진도 읽기: 한글 첫 달과 같은 키를 씁니다 ---- */
 const STORE_KEY = 'daltokki:v1:first-moon';
@@ -568,7 +568,7 @@ const cast = document.getElementById('cast');
 FRIENDS.forEach(f => {
   const el = document.createElement('article');
   el.className = 'friend';
-  el.innerHTML = `<div class="fig"><img src="assets/chars/${f.img}.webp" alt="${f.name}" loading="lazy" decoding="async"></div><div><h3>${f.name}</h3><p class="role">${f.role}</p><p>${f.line}</p></div>`;
+  el.innerHTML = `<div class="fig"><img src="assets/chars/${f.img}.webp?v=2" alt="${f.name}" loading="lazy" decoding="async"></div><div><h3>${f.name}</h3><p class="role">${f.role}</p><p>${f.line}</p></div>`;
   cast.append(el);
 });
 

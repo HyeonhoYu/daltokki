@@ -299,7 +299,7 @@ const CHAR_FILES = {
 };
 function charImg(who, m){
   const f = CHAR_FILES[who][m] || CHAR_FILES[who][''];
-  return `<img class="chr" src="${CHAR_DIR}${f}.webp" alt="" aria-hidden="true" draggable="false" decoding="async">`;
+  return `<img class="chr" src="${CHAR_DIR}${f}.webp?v=2" alt="" aria-hidden="true" draggable="false" decoding="async">`;
 }
 const CHAR = {
   tori: m => charImg('tori', m),
@@ -307,7 +307,7 @@ const CHAR = {
   dami: m => charImg('dami', m)
 };
 /* 기분 그림을 미리 불러 두어 바꿀 때 깜빡이지 않게 합니다. */
-Object.values(CHAR_FILES).forEach(set => Object.values(set).forEach(f => { const i = new Image(); i.src = CHAR_DIR + f + '.webp'; }));
+Object.values(CHAR_FILES).forEach(set => Object.values(set).forEach(f => { const i = new Image(); i.src = CHAR_DIR + f + '.webp?v=2'; }));
 
 /* 화면마다 주 안내 캐릭터가 하나 있고, 정답과 오답에 반응합니다. */
 let curGuide = null;

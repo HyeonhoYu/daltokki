@@ -492,7 +492,7 @@ h2{font-family:var(--display);font-weight:400;font-size:30px;margin:0 0 4px}
 
 /* 3D 캐릭터 그림 (assets/chars/) */
 img.chr{display:block;object-fit:contain;object-position:center bottom;user-select:none;-webkit-user-drag:none;
-  filter:drop-shadow(0 3px 3px rgba(34,31,28,.18))}
+  filter:drop-shadow(0 1.5px 1px rgba(34,31,28,.16))}
 .guide-fig img.chr{width:96px;height:100px}
 .guide.side .guide-fig img.chr{width:76px;height:80px}
 .trio-one img.chr{width:104px;height:104px;margin:0 auto}
