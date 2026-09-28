@@ -119,8 +119,9 @@ kbd{border:2px solid var(--meok);border-radius:5px;padding:0 6px;font-size:12px;
         <select id="aiModel">
           <option value="gemini-3.8-flash-tts">Gemini 3.8 Flash TTS (발음과 표현이 가장 좋음)</option>
           <option value="gemini-3.8-flash-lite-tts">Gemini 3.8 Flash-Lite TTS (빠르고 저렴함)</option>
-          <option value="gemini-2.5-flash-tts">Gemini 2.5 Flash TTS (하루 100개, 한도 따로)</option>
-          <option value="gemini-2.5-pro-tts">Gemini 2.5 Pro TTS (하루 50개, 한도 따로)</option>
+          <option value="gemini-3.1-flash-tts-preview">Gemini 3.1 Flash TTS (하루 100개, 한도 따로)</option>
+          <option value="gemini-2.5-flash-preview-tts">Gemini 2.5 Flash TTS (하루 100개, 한도 따로)</option>
+          <option value="gemini-2.5-pro-preview-tts">Gemini 2.5 Pro TTS (하루 50개, 한도 따로)</option>
         </select>
       </div>
       <p class="note">TTS 모델은 모델마다 하루 한도(Tier 1에서 Flash 계열 100개, 2.5 Pro 50개)와 분당 한도(10개)가 따로 있어요. 한 모델이 하루 한도에 걸리면 여기서 다른 모델로 바꾸고 이어서 채우면 됩니다. 한도는 태평양 시간 자정(인디애나 새벽 3시쯤)에 다시 채워집니다.</p>
@@ -724,8 +725,25 @@ function findAudio(j){
   (j && j.steps || []).forEach(st => (st.content || []).forEach(c => { if(c && c.type === 'audio' && c.data) found = c.data; }));
   return found;
 }
+/* 3.8 이전 모델(3.1, 2.5)은 말투 안내를 따로 받지 않아서 글 앞에 붙여 보내고,
+   소리도 머리말 없는 날것(24kHz, 16비트, 모노)으로 돌려주므로 WAV 머리말을 붙입니다. */
+const isLegacy = m => !/^gemini-3\.8/.test(m);
+function pcmToWav(pcm, rate){
+  const h = new DataView(new ArrayBuffer(44)), w = (o, t) => { for(let i = 0; i < 4; i++) h.setUint8(o + i, t.charCodeAt(i)); };
+  w(0, 'RIFF'); h.setUint32(4, 36 + pcm.length, true); w(8, 'WAVE'); w(12, 'fmt ');
+  h.setUint32(16, 16, true); h.setUint16(20, 1, true); h.setUint16(22, 1, true);
+  h.setUint32(24, rate, true); h.setUint32(28, rate * 2, true); h.setUint16(32, 2, true); h.setUint16(34, 16, true);
+  w(36, 'data'); h.setUint32(40, pcm.length, true);
+  const out = new Uint8Array(44 + pcm.length); out.set(new Uint8Array(h.buffer), 0); out.set(pcm, 44); return out;
+}
 async function aiSynth(text, say){
-  const body = {
+  const legacy = isLegacy(aiCfg.model);
+  const body = legacy ? {
+    model: aiCfg.model,
+    input: '다음 한국어를 ' + styleFor(say) + ' 읽어 주세요. 안내문은 읽지 말고 따옴표 안의 말만 소리 내세요: "' + text + '"',
+    response_format: {type: 'audio'},
+    generation_config: {speech_config: [{voice: aiCfg.voice}]}
+  } : {
     model: aiCfg.model,
     input: [{type: 'user_input', content: [{type: 'text', text, annotations: [{type: 'speech_metadata', style: styleFor(say)}]}]}],
     response_format: {type: 'audio'},
@@ -747,8 +765,10 @@ async function aiSynth(text, say){
     if((r.status === 429 || r.status >= 500) && tryNo < 3){ status('잠깐 기다렸다 다시 시도하는 중이에요. (' + (tryNo + 1) + '/3)'); await wait(r.status === 429 ? 20000 : 3000); continue; }
     const data = r.ok ? findAudio(j) : null;
     if(!data) throw new Error(r.ok ? 'AI가 소리를 돌려주지 않았어요. 다시 만들어 주세요.' : aiErr(j, r.status));
-    const bin = atob(data), u8 = new Uint8Array(bin.length);
+    const bin = atob(data); let u8 = new Uint8Array(bin.length);
     for(let i = 0; i < bin.length; i++) u8[i] = bin.charCodeAt(i);
+    /* RIFF 로 시작하지 않으면 머리말 없는 소리이니 WAV 로 감쌉니다. */
+    if(!(u8[0] === 82 && u8[1] === 73 && u8[2] === 70 && u8[3] === 70)) u8 = pcmToWav(u8, 24000);
     /* 사람 녹음과 똑같이 앞뒤 빈 소리를 자르고 음량과 형식을 맞춥니다. */
     return processBlob(new Blob([u8], {type: 'audio/wav'}), {ai: true});
   }
