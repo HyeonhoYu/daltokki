@@ -2,8 +2,8 @@
  "version": 1,
  "sampleRate": 22050,
  "complete": false,
- "count": 244,
- "updated": "2026-09-28T19:29:04.512Z",
+ "count": 253,
+ "updated": "2026-09-28T21:42:26.003Z",
  "clips": {
   "ac00": 1,
   "ac10-c0ac-d569-b2c8-b2e4": 1,
@@ -248,7 +248,16 @@
   "c5f4-d558-b098": 1,
   "c5f4-d55c-20-c0b4": 1,
   "d55c-20-ac1c": 1,
-  "d55c-20-c0b4": 1
+  "d55c-20-c0b4": 1,
+  "b124-20-ac1c-c608-c694": 1,
+  "b2e4-c12f-20-c0b4-c774-c5d0-c694": 1,
+  "b450-20-ac1c-c608-c694": 1,
+  "c138-20-c0b4-c774-c5d0-c694": 1,
+  "c5ec-b35f-20-ac1c-c608-c694": 1,
+  "c5f4-b450-20-ac1c": 1,
+  "c5f4-b450-20-c0b4": 1,
+  "c5f4-d55c-20-ac1c": 1,
+  "d55c-20-c0b4-c774-c5d0-c694": 1
  },
  "texts": {
   "ac00": "가",
@@ -494,7 +503,16 @@
   "c5f4-d558-b098": "열하나",
   "c5f4-d55c-20-c0b4": "열한 살",
   "d55c-20-ac1c": "한 개",
-  "d55c-20-c0b4": "한 살"
+  "d55c-20-c0b4": "한 살",
+  "b124-20-ac1c-c608-c694": "네 개예요",
+  "b2e4-c12f-20-c0b4-c774-c5d0-c694": "다섯 살이에요",
+  "b450-20-ac1c-c608-c694": "두 개예요",
+  "c138-20-c0b4-c774-c5d0-c694": "세 살이에요",
+  "c5ec-b35f-20-ac1c-c608-c694": "여덟 개예요",
+  "c5f4-b450-20-ac1c": "열두 개",
+  "c5f4-b450-20-c0b4": "열두 살",
+  "c5f4-d55c-20-ac1c": "열한 개",
+  "d55c-20-c0b4-c774-c5d0-c694": "한 살이에요"
  },
  "ai": {
   "ac00": "3.8-flash-tts/Kore",
@@ -732,6 +750,15 @@
   "c5f4-d558-b098": "3.8-flash-lite-tts/Kore",
   "c5f4-d55c-20-c0b4": "3.8-flash-tts/Kore",
   "d55c-20-ac1c": "3.8-flash-lite-tts/Kore",
-  "d55c-20-c0b4": "3.8-flash-lite-tts/Kore"
+  "d55c-20-c0b4": "3.8-flash-lite-tts/Kore",
+  "b124-20-ac1c-c608-c694": "3.8-flash-lite-tts/Kore",
+  "b2e4-c12f-20-c0b4-c774-c5d0-c694": "3.8-flash-lite-tts/Kore",
+  "b450-20-ac1c-c608-c694": "3.8-flash-lite-tts/Kore",
+  "c138-20-c0b4-c774-c5d0-c694": "3.8-flash-lite-tts/Kore",
+  "c5ec-b35f-20-ac1c-c608-c694": "3.8-flash-lite-tts/Kore",
+  "c5f4-b450-20-ac1c": "3.8-flash-lite-tts/Kore",
+  "c5f4-b450-20-c0b4": "3.8-flash-lite-tts/Kore",
+  "c5f4-d55c-20-ac1c": "3.8-flash-tts/Kore",
+  "d55c-20-c0b4-c774-c5d0-c694": "3.8-flash-lite-tts/Kore"
  }
 }
