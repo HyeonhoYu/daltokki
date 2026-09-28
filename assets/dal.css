@@ -489,3 +489,18 @@ h2{font-family:var(--display);font-weight:400;font-size:30px;margin:0 0 4px}
 .cert .certchars svg{width:100%;height:auto}
 .cert .certfrom p{margin:2px 0 0;font-family:var(--display);font-size:18px}
 @media print{html.print-one .cert{box-shadow:none;margin-top:40px}}
+
+/* 3D 캐릭터 그림 (assets/chars/) */
+img.chr{display:block;object-fit:contain;object-position:center bottom;user-select:none;-webkit-user-drag:none;
+  filter:drop-shadow(0 3px 3px rgba(34,31,28,.18))}
+.guide-fig img.chr{width:96px;height:100px}
+.guide.side .guide-fig img.chr{width:76px;height:80px}
+.trio-one img.chr{width:104px;height:104px;margin:0 auto}
+.mini img.chr{width:70px;height:72px}
+.scene .tori img.chr{width:auto;height:150px;margin-left:10px}
+.cert .certchars img.chr{width:100%;height:76px}
+@media (max-width:560px){
+  .guide-fig img.chr{width:72px;height:76px}
+}
+@media print{img.chr{filter:none}}
+.roomcard img.chr{width:84px;height:84px;flex:0 0 84px}

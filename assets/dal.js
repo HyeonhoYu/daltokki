@@ -288,76 +288,26 @@ hintToggle.addEventListener('change', () => {
    담이(호랑이) 이야기와 뿌리: 소리와 글자가 다른 이유
    캐릭터는 반말(담이는 옛날 어른 말투), 화면 안내는 해요체로 씁니다.   */
 const NAME = {tori:'토리', moi:'모이', dami:'담이'};
-const CHAR = {
-  tori(m){
-    const mouth = m === 'happy'
-      ? '<path d="M101 107 q10 13 20 0 Z" fill="#C1403A" stroke="#221F1C" stroke-width="2.4" stroke-linejoin="round"/>'
-      : m === 'oops'
-      ? '<ellipse cx="111" cy="112" rx="4" ry="5" fill="#221F1C"/>'
-      : '<path d="M104 110 q7 6 14 0" stroke="#221F1C" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
-    return `<svg viewBox="0 0 240 200" aria-hidden="true">
-      <g stroke="#221F1C" stroke-width="3.2" stroke-linejoin="round">
-        <path d="M96 74 C86 48 84 26 94 20 C106 26 104 54 104 74 Z" fill="#EDE3CB"/>
-        <path d="M97 66 C91 48 90 32 95 28 C101 33 100 52 102 66 Z" fill="#D98B7E" stroke="none"/>
-        <path d="M118 72 C114 48 118 26 129 22 C137 30 128 56 126 73 Z" fill="#EDE3CB"/>
-        <path d="M120 66 C118 48 121 34 127 30 C131 37 124 52 124 66 Z" fill="#D98B7E" stroke="none"/>
-        <ellipse cx="112" cy="140" rx="40" ry="42" fill="#EDE3CB"/>
-        <circle cx="110" cy="92" r="27" fill="#EDE3CB"/>
-        <path d="M36 168 L92 168 L86 190 L42 190 Z" fill="#8A6A4A"/>
-      </g>
-      <g class="pestle" stroke="#221F1C" stroke-width="3.2">
-        <path d="M150 150 L196 74" stroke-width="11" stroke-linecap="round" fill="none"/>
-        <circle cx="198" cy="70" r="12" fill="#C9A87C"/>
-      </g>
-      <circle cx="101" cy="90" r="3.6" fill="#221F1C"/>
-      <circle cx="121" cy="90" r="3.6" fill="#221F1C"/>
-      <path d="M107 100 L115 100 L111 105 Z" fill="#C1403A"/>
-      ${mouth}
-    </svg>`;
-  },
-  moi(m){
-    const eye = m === 'happy'
-      ? '<path d="M74 85 q6 -8 12 0" stroke="#EDE3CB" stroke-width="3.4" fill="none" stroke-linecap="round"/>'
-      : '<circle cx="80" cy="82" r="5.4" fill="#EDE3CB"/><circle cx="81" cy="82" r="2.6" fill="#221F1C"/>';
-    return `<svg viewBox="0 0 240 200" aria-hidden="true">
-      <g stroke="#221F1C" stroke-width="3.2" stroke-linejoin="round">
-        <path d="M168 118 L222 150 L214 162 L160 136 Z" fill="#2D6E8E"/>
-        <ellipse cx="118" cy="120" rx="52" ry="40" fill="#EDE3CB"/>
-        <path d="M118 82 C150 82 168 100 168 122 C168 138 156 150 140 152 C150 128 142 96 118 82 Z" fill="#221F1C"/>
-        <circle cx="82" cy="88" r="26" fill="#221F1C"/>
-        <path d="M58 86 L32 94 L58 102 Z" fill="#E3A93C"/>
-        <path d="M96 152 L96 172 M124 152 L124 172" stroke-width="5" stroke-linecap="round"/>
-      </g>
-      ${eye}
-      <rect x="96" y="106" width="34" height="24" rx="3" fill="#EDE3CB" stroke="#221F1C" stroke-width="2.6"/>
-      <path d="M96 107 L113 120 L130 107" fill="none" stroke="#221F1C" stroke-width="2.6"/>
-    </svg>`;
-  },
-  dami(m){
-    const mouth = m === 'happy'
-      ? '<path d="M94 137 q16 20 32 0 Z" fill="#C1403A" stroke="#221F1C" stroke-width="3" stroke-linejoin="round"/>'
-      : m === 'oops'
-      ? '<path d="M99 143 L121 143" stroke="#221F1C" stroke-width="3" stroke-linecap="round"/>'
-      : '<path d="M110 133 L110 140 M110 140 q-11 10 -19 0 M110 140 q11 10 19 0" stroke="#221F1C" stroke-width="3" fill="none" stroke-linecap="round"/>';
-    return `<svg viewBox="0 0 240 200" aria-hidden="true">
-      <g stroke="#221F1C" stroke-width="3.2" stroke-linejoin="round">
-        <circle cx="74" cy="60" r="16" fill="#E3A93C"/>
-        <circle cx="146" cy="60" r="16" fill="#E3A93C"/>
-        <ellipse cx="110" cy="112" rx="62" ry="58" fill="#E3A93C"/>
-        <ellipse cx="110" cy="132" rx="34" ry="26" fill="#EDE3CB"/>
-      </g>
-      <g stroke="#221F1C" stroke-width="6" stroke-linecap="round">
-        <path d="M64 92 L84 86"/><path d="M62 108 L82 106"/>
-        <path d="M156 92 L136 86"/><path d="M158 108 L138 106"/>
-        <path d="M100 62 L104 78"/><path d="M120 62 L116 78"/>
-      </g>
-      <circle cx="92" cy="106" r="6" fill="#221F1C"/>
-      <circle cx="128" cy="106" r="6" fill="#221F1C"/>
-      <path d="M102 124 L118 124 L110 133 Z" fill="#221F1C"/>
-      ${mouth}
-    </svg>`;
-  }
+/* 캐릭터 그림은 assets/chars/ 의 3D 그림을 씁니다.
+   기분(m)은 ''(보통), 'happy'(정답), 'oops'(오답) 세 가지입니다.
+   기분 그림이 없으면 보통 그림을 쓰고, 움직임(hop, tilt)으로 기분을 나타냅니다. */
+const CHAR_DIR = DAL_ROOT + 'assets/chars/';
+const CHAR_FILES = {
+  tori: {'':'tori', happy:'tori-happy', oops:'tori-oops'},
+  moi:  {'':'moi',  happy:'moi-happy'},
+  dami: {'':'dami', happy:'dami-happy'}
 };
+function charImg(who, m){
+  const f = CHAR_FILES[who][m] || CHAR_FILES[who][''];
+  return `<img class="chr" src="${CHAR_DIR}${f}.webp" alt="" aria-hidden="true" draggable="false" decoding="async">`;
+}
+const CHAR = {
+  tori: m => charImg('tori', m),
+  moi:  m => charImg('moi', m),
+  dami: m => charImg('dami', m)
+};
+/* 기분 그림을 미리 불러 두어 바꿀 때 깜빡이지 않게 합니다. */
+Object.values(CHAR_FILES).forEach(set => Object.values(set).forEach(f => { const i = new Image(); i.src = CHAR_DIR + f + '.webp'; }));
 
 /* 화면마다 주 안내 캐릭터가 하나 있고, 정답과 오답에 반응합니다. */
 let curGuide = null;

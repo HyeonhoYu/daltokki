@@ -148,7 +148,7 @@ function outMore(kind){
       <ellipse cx="72" cy="62" rx="10" ry="6" fill="#FBF7EC" stroke="${S}" stroke-width="2"/><path d="M62 76 L68 66" stroke="#F0D9BE" stroke-width="4" stroke-linecap="round"/>`,
     tiger_come: `${floor}${m2Person('kid', 50, 'stand', 1)}${m2Person('friend', 90, 'stand', -1)}
       <path d="M40 20 Q60 6 80 20 Q84 34 68 36 L60 44 L60 36 Q38 34 40 20 Z" fill="#FBF7EC" stroke="${S}" stroke-width="2"/>${m6Txt(60, 24, '호랑이...', 9, '#17324A')}
-      <g transform="translate(150 118) scale(.45)">${CHAR.dami ? CHAR.dami('happy').replace(/<\/?svg[^>]*>/g, '').replace(/^/, '<g transform="translate(-120 -200)">') + '</g>' : ''}</g>`,
+      ${typeof CHAR_DIR !== 'undefined' ? `<image href="${CHAR_DIR}dami-happy.webp" x="114" y="36" width="64" height="84" preserveAspectRatio="xMidYMax meet"/>` : ''}`,
     monkey: `<rect width="200" height="130" rx="6" fill="#DCEBD6"/><rect x="40" y="30" width="12" height="100" fill="#8A6A4A" stroke="${S}" stroke-width="2"/><path d="M52 44 L130 40" stroke="#8A6A4A" stroke-width="8" stroke-linecap="round"/>
       <circle cx="46" cy="24" r="24" fill="#6E8F58" stroke="${S}" stroke-width="2"/>
       <g transform="translate(130 86) rotate(30)"><ellipse cx="0" cy="8" rx="12" ry="16" fill="#9C7650" stroke="${S}" stroke-width="2"/><circle cx="0" cy="-14" r="11" fill="#9C7650" stroke="${S}" stroke-width="2"/>
