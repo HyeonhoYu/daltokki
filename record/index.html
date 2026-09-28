@@ -61,8 +61,13 @@ h1{font-family:var(--display);font-weight:400;font-size:30px;margin:4px 0 4px}
 #status{min-height:1.6em;font-weight:500;margin:8px 0 0}
 #status.bad{color:var(--juhong)}
 #status.good{color:#4E6B3C}
+#exStatus{min-height:1.4em;font-weight:500}
+#exStatus.bad{color:var(--juhong)}
+#exStatus.good{color:#4E6B3C}
 .export{margin-top:18px;border-top:2px dashed #B9AB88;padding-top:14px}
 .export p{margin:4px 0 10px}
+.export .since{font-size:14px;color:#5A5248;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.export .btn.small{font-size:13.5px;padding:4px 10px}
 details{margin-top:12px;font-size:14.5px}
 details ol{padding-left:20px}
 code{background:var(--hanji-deep);padding:1px 6px;border-radius:5px;font-size:13px}
@@ -173,15 +178,22 @@ kbd{border:2px solid var(--meok);border-radius:5px;padding:0 6px;font-size:12px;
 
   <section class="export" id="exportSec" hidden>
     <p id="count"></p>
-    <button class="btn main" id="exportBtn">audio 폴더 내려받기 (zip)</button>
-    <button class="btn ai" id="aiFill">녹음 없는 말 모두 AI로 채우기</button>
+    <div class="controls">
+      <button class="btn main" id="exportAll">전체 내려받기 (100개씩 나눠서)</button>
+      <button class="btn main" id="exportNew">새로 만들거나 바꾼 것만 내려받기</button>
+      <button class="btn ai" id="aiFill">녹음 없는 말 모두 AI로 채우기</button>
+    </div>
+    <p class="since"><span id="sinceTxt"></span><button class="btn small" id="markSent">지금까지 것은 다 올렸다고 표시</button></p>
+    <p id="exStatus" aria-live="polite"></p>
     <div id="dlParts" class="controls" style="margin-top:12px"></div>
     <details>
       <summary>저장소에 올리는 법</summary>
       <ol>
         <li>내려받은 zip을 풀면 <code>audio</code> 폴더가 나옵니다. zip 파일 자체는 올리지 않습니다.</li>
         <li>저장소 맨 위(홈 <code>index.html</code>이 있는 곳)에서 Add file, Upload files를 누르고 <code>audio</code> 폴더를 폴더째 끌어다 놓습니다. 폴더 안의 파일만 끌어다 놓으면 저장소 맨 위에 흩어집니다.</li>
-        <li>GitHub 웹에서는 한 번에 100개까지만 올라갑니다. 파일이 많으면 도구가 1부, 2부로 나눠 주니, 둘 다 같은 방법으로 저장소 맨 위에 폴더째 끌어다 놓으면 같은 <code>audio</code> 폴더 안에 합쳐집니다.</li>
+        <li>GitHub 웹에서는 한 번에 100개까지만 올라가서, 어느 쪽으로 받든 zip 하나에 100개(manifest.json 포함)까지만 담습니다. 1부, 2부를 차례로 받아 하나씩 저장소 맨 위에 폴더째 끌어다 놓으면 같은 <code>audio</code> 폴더 안에 합쳐집니다.</li>
+        <li>평소에는 새로 만들거나 바꾼 것만 받기를 쓰면 됩니다. 나눠진 부분을 모두 받으면 그때를 기준으로 삼아, 다음에는 그 뒤에 만들거나 바꾼 말만 담깁니다. 전체 내려받기는 저장소를 처음부터 다시 맞추고 싶을 때 씁니다.</li>
+        <li>manifest.json 은 두 방법 모두 늘 1부에 들어가고, 사이트에 있는 목록과 이 브라우저의 것을 모두 합친 전체 목록입니다. 그래서 1부는 꼭 올려야 합니다.</li>
         <li>확인: <code>https://hyeonhoyu.github.io/daltokki/audio/manifest.json</code> 을 열었을 때 글이 보이면 맞게 올라간 것입니다.</li>
         <li>다시 녹음한 뒤에는 새로 내려받아 <code>audio</code> 폴더 전체를 덮어쓰면 됩니다. 파일 이름이 글자마다 정해져 있어서 겹치지 않습니다.</li>
       </ol>
@@ -231,9 +243,10 @@ function tx(mode, fn){
     t.oncomplete = () => res(out); t.onerror = () => rej(t.error);
   }));
 }
-const idbPut = rec => tx('readwrite', st => st.put(rec));
+const savedAt = new Map(); /* 말 id 와 저장한 때. 새로 만든 것만 받기에 씁니다. */
+const idbPut = rec => tx('readwrite', st => st.put(rec)).then(v => { savedAt.set(rec.id, rec.at); sinceNote(); return v; });
 const idbGet = id => tx('readonly', st => st.get(id));
-const idbDel = id => tx('readwrite', st => st.delete(id));
+const idbDel = id => tx('readwrite', st => st.delete(id)).then(v => { savedAt.delete(id); sinceNote(); return v; });
 const idbAll = () => tx('readonly', st => st.getAll());
 
 /* ---- 목록 불러오기 ---- */
@@ -283,7 +296,7 @@ async function loadList(){
   }
   if(lists.some(l => !l.length))
     $('loadErr').innerHTML = '<div class="warn">한 달의 목록을 읽지 못했어요. 읽은 달만 보여 줍니다. 새로 고침하면 다시 읽어요.</div>';
-  try { (await idbAll()).forEach(r => { saved.add(r.id); if(r.src === 'ai') aiIds.add(r.id); }); } catch(e) {
+  try { (await idbAll()).forEach(r => { saved.add(r.id); savedAt.set(r.id, r.at); if(r.src === 'ai') aiIds.add(r.id); }); sinceNote(); } catch(e) {
     $('loadErr').innerHTML = '<div class="warn">이 브라우저에서는 녹음을 저장해 둘 수 없어요. 창을 닫기 전에 꼭 내려받기를 해 주세요.</div>';
   }
   const firstMissing = clips.findIndex(c => !have(c.id));
@@ -527,11 +540,32 @@ function makeZip(files){
   end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
   return new Blob([...parts, ...central, new Uint8Array(end.buffer)], {type: 'application/zip'});
 }
-async function exportZip(){
+/* 마지막으로 모든 부분을 다 받은 때를 이 브라우저에 적어 둡니다. */
+const SENT_KEY = 'daltokki-last-export';
+function lastSent(){ try { return +localStorage.getItem(SENT_KEY) || 0; } catch(e) { return 0; } }
+function setSent(t){ try { localStorage.setItem(SENT_KEY, String(t)); } catch(e) {} sinceNote(); }
+/* 기준 시점 뒤에 저장한 것(또는 저장한 때가 적혀 있지 않은 것)이 새것입니다. */
+const isNew = (at, base) => !(at <= base);
+function sinceNote(){
+  const base = lastSent();
+  let n = 0; savedAt.forEach(at => { if(isNew(at, base)) n++; });
+  $('exportNew').textContent = '새로 만들거나 바꾼 것만 내려받기 (' + n + '개)';
+  $('sinceTxt').textContent = base
+    ? '마지막으로 다 내려받은 때: ' + new Date(base).toLocaleString('ko-KR') + '. 그 뒤로 새로 만들거나 바꾼 말이 ' + n + '개 있어요.'
+    : '아직 다 내려받은 기록이 없어서, 지금 새것만 받으면 이 브라우저에 있는 ' + n + '개가 모두 담겨요.';
+}
+function exStat(msg, kind){ const s = $('exStatus'); s.textContent = msg || ''; s.className = kind || ''; }
+
+async function exportZip(mode){
   const all = await idbAll();
-  if(!all.length){ status('아직 녹음한 것이 없어요.', 'bad'); return; }
-  const files = [], map = {}, texts = {}, aiMap = {};
-  /* 사이트에 이미 올라간 목록을 먼저 넣고, 이 브라우저의 녹음을 더합니다. */
+  if(!all.length){ exStat('아직 녹음한 것이 없어요.', 'bad'); return; }
+  const snap = Date.now(), base = lastSent();
+  const pick = mode === 'new' ? all.filter(r => isNew(r.at, base)) : all;
+  if(!pick.length){ $('dlParts').innerHTML = ''; exStat('지난번 내려받기 뒤로 새로 만들거나 바꾼 말이 없어요.', 'good'); return; }
+
+  /* manifest.json 은 어느 방법이든 전체 목록으로 만듭니다.
+     사이트에 이미 올라간 목록을 먼저 넣고, 이 브라우저의 것을 모두 더합니다. */
+  const map = {}, texts = {}, aiMap = {};
   try {
     const r = await fetch('../audio/manifest.json', {cache: 'no-cache'});
     const live = r.ok ? await r.json() : null;
@@ -540,7 +574,7 @@ async function exportZip(){
   } catch(e) {}
   const liveCount = Object.keys(map).length;
   all.forEach(r => {
-    files.push({name: 'audio/' + r.id + '.wav', data: new Uint8Array(r.wav)}); map[r.id] = 1; texts[r.id] = r.text;
+    map[r.id] = 1; texts[r.id] = r.text;
     /* 사람이 다시 녹음한 말은 AI 목록에서 뺍니다. */
     if(r.src === 'ai') aiMap[r.id] = r.voice || 'ai'; else delete aiMap[r.id];
   });
@@ -548,27 +582,47 @@ async function exportZip(){
   const missing = clips.filter(c => !map[c.id]);
   const manifest = {version: 1, sampleRate: OUT_RATE, complete, count: Object.keys(map).length, updated: new Date().toISOString(), clips: map, texts, ai: aiMap};
   const manFile = {name: 'audio/manifest.json', data: new TextEncoder().encode(JSON.stringify(manifest, null, 1))};
-  const done = (liveCount ? ' 사이트에 이미 있던 ' + liveCount + '개도 목록에 함께 적었어요.' : '')
-    + (complete ? ' 모든 달의 녹음이 다 모였어요.'
-       : ' 아직 녹음이 없는 말 ' + missing.length + '개는 기기 음성으로 나옵니다.');
-  /* GitHub 웹에서는 한 번에 100개까지만 올릴 수 있어서, 넘으면 나눠 담습니다.
-     manifest.json 은 늘 1부에 넣습니다. 목록 전체가 들어 있어서 한 번만 있으면 됩니다. */
-  const PER = 95, groups = [];
-  for(let i = 0; i < files.length; i += PER) groups.push(files.slice(i, i + PER));
+
+  /* 소리 파일만 담습니다. 달, 밤 순서를 따라 담아서 부분마다 어느 달인지 짐작하기 쉽게 합니다. */
+  const order = new Map(clips.map((c, i) => [c.id, i]));
+  pick.sort((x, y) => (order.has(x.id) ? order.get(x.id) : 1e9) - (order.has(y.id) ? order.get(y.id) : 1e9));
+  const files = pick.map(r => ({name: 'audio/' + r.id + '.wav', data: new Uint8Array(r.wav)}));
+
+  /* GitHub 웹에서는 한 번에 100개까지만 올릴 수 있어서 zip 하나에 100개까지만 담습니다.
+     manifest.json 은 늘 1부에 넣으니 1부는 소리 99개와 목록 하나입니다. */
+  const PER = 100, groups = [files.slice(0, PER - 1)];
+  for(let i = PER - 1; i < files.length; i += PER) groups.push(files.slice(i, i + PER));
   groups[0].unshift(manFile);
+
+  const done = (liveCount ? ' 목록에는 사이트에 이미 있던 ' + liveCount + '개도 함께 적었어요.' : '')
+    + (complete ? ' 모든 달의 녹음이 다 모였어요.' : ' 아직 녹음이 없는 말 ' + missing.length + '개는 기기 음성으로 나옵니다.');
+  const what = mode === 'new' ? '새로 만들거나 바꾼 말 ' + pick.length + '개' : '전체 ' + pick.length + '개';
+  const tag = mode === 'new' ? 'new' : 'all';
   const box = $('dlParts'); box.innerHTML = '';
+
   if(groups.length === 1){
-    download(makeZip(groups[0]), 'daltokki-audio.zip');
-    status(all.length + '개를 내려받았어요.' + done, 'good');
+    download(makeZip(groups[0]), 'daltokki-audio-' + tag + '.zip');
+    setSent(snap);
+    exStat(what + '를 내려받았어요.' + done, 'good');
     return;
   }
+  const got = new Set();
   groups.forEach((g, i) => {
     const b = document.createElement('button');
-    b.className = 'btn'; b.textContent = (i + 1) + '부 내려받기 (' + g.length + '개)';
-    b.addEventListener('click', () => { download(makeZip(g), 'daltokki-audio-' + (i + 1) + '.zip'); b.textContent = (i + 1) + '부 받음'; });
+    b.className = 'btn';
+    b.textContent = (i + 1) + '부 내려받기 (' + g.length + '개' + (i === 0 ? ', 목록 포함' : '') + ')';
+    b.addEventListener('click', () => {
+      download(makeZip(g), 'daltokki-audio-' + tag + '-' + (i + 1) + '.zip');
+      b.textContent = (i + 1) + '부 받음';
+      got.add(i);
+      if(got.size === groups.length){
+        setSent(snap);
+        exStat(groups.length + '부를 모두 받았어요. 다음부터 새로 만든 것만 받기에는 지금 뒤에 만들거나 바꾼 말만 담깁니다.' + done, 'good');
+      }
+    });
     box.append(b);
   });
-  status('파일이 ' + (files.length + 1) + '개라 GitHub에 한 번에 올릴 수 있는 100개를 넘어요. 아래 버튼으로 나눠 받아서, 하나씩 저장소 맨 위에 audio 폴더째 올려 주세요.' + done, 'good');
+  exStat(what + '를 ' + groups.length + '부로 나눴어요. 아래 단추로 차례로 받아서 하나씩 저장소 맨 위에 audio 폴더째 올려 주세요. 모든 부분을 받아야 기준 시점이 바뀝니다.' + done, 'good');
 }
 function download(blob, name){
   const a = document.createElement('a');
@@ -765,7 +819,13 @@ $('playBtn').addEventListener('click', e => { e.currentTarget.blur(); playCurren
 $('prevBtn').addEventListener('click', e => { e.currentTarget.blur(); go(-1); });
 $('nextBtn').addEventListener('click', e => { e.currentTarget.blur(); go(1); });
 $('delBtn').addEventListener('click', e => { e.currentTarget.blur(); deleteCurrent(); });
-$('exportBtn').addEventListener('click', exportZip);
+$('exportAll').addEventListener('click', () => exportZip('all'));
+$('exportNew').addEventListener('click', () => exportZip('new'));
+$('markSent').addEventListener('click', () => {
+  if(confirm('지금 이 브라우저에 저장된 것을 모두 저장소에 올린 것으로 표시할까요? 다음부터 새로 만든 것만 받기에는 지금 뒤에 만들거나 바꾼 말만 담깁니다.')){
+    setSent(Date.now()); exStat('표시했어요. 이제부터 만들거나 바꾼 말만 새것으로 셉니다.', 'good');
+  }
+});
 document.addEventListener('keydown', e => {
   if(!clips.length || ['INPUT', 'SELECT', 'SUMMARY'].includes(e.target.tagName)) return;
   if(filling) return;
