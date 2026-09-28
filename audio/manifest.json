@@ -3,7 +3,7 @@
  "sampleRate": 22050,
  "complete": false,
  "count": 138,
- "updated": "2026-09-28T01:56:03.117Z",
+ "updated": "2026-09-28T10:23:16.818Z",
  "clips": {
   "ac00": 1,
   "ac00-ac8c": 1,
@@ -299,6 +299,16 @@
   "c774-b984": "3.8-flash-tts/Leda",
   "c800": "3.8-flash-tts/Leda",
   "c800-b294-20-d1a0-b9ac-c608-c694": "3.8-flash-tts/Leda",
-  "c81c": "3.8-flash-tts/Leda"
+  "c81c": "3.8-flash-tts/Leda",
+  "adf8": "3.8-flash-tts/Kore",
+  "b290": "3.8-flash-tts/Kore",
+  "bbc0": "3.8-flash-tts/Kore",
+  "c2a4": "3.8-flash-tts/Kore",
+  "c544": "3.8-flash-tts/Kore",
+  "c5b4": "3.8-flash-tts/Kore",
+  "c624": "3.8-flash-tts/Kore",
+  "c6b0": "3.8-flash-tts/Kore",
+  "c73c": "3.8-flash-tts/Kore",
+  "c774": "3.8-flash-tts/Kore"
  }
 }
