@@ -37,6 +37,11 @@ h1,h2,h3{font-family:var(--display);font-weight:400;line-height:1.25}
   font-family:var(--display);font-size:22px}
 .top a.plink{color:#9DB4C6;font-size:14px;text-decoration:none}
 .top a.plink:hover{color:var(--dalbit)}
+.toplinks{display:flex;align-items:center;gap:14px}
+.top a.tlink{color:var(--dalbit);font-size:14px;text-decoration:none;border:1.5px solid #9DB4C6;
+  border-radius:999px;padding:4px 12px;white-space:nowrap}
+.top a.tlink:hover{background:var(--dalbit);color:var(--gamcheong);border-color:var(--dalbit)}
+@media (max-width:420px){.toplinks{gap:10px}.top a.plink,.top a.tlink{font-size:13px}.top a.tlink{padding:3px 10px}}
 .hero{display:grid;grid-template-columns:1.15fr 1fr;gap:28px;align-items:center;
   padding-top:28px;padding-bottom:52px;position:relative}
 .kicker{margin:0;font-size:14px;color:#9DB4C6;letter-spacing:.06em}
@@ -198,7 +203,10 @@ footer .coffeelink svg{width:18px;height:18px;vertical-align:-3px}
         <path d="M83 78 C76 60 74 44 81 38 C88 44 88 62 90 77 Z"/><path d="M95 78 C93 60 96 44 102 40 C106 48 101 64 99 78 Z"/></g></svg>
       달토끼
     </a>
-    <a class="plink" href="#parents">부모님과 선생님께</a>
+    <nav class="toplinks" aria-label="어른을 위한 곳">
+      <a class="plink" href="#parents">부모님과 선생님께</a>
+      <a class="tlink" href="teacher/">선생님 방</a>
+    </nav>
   </div>
 
   <div class="wrap hero">
