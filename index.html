@@ -97,6 +97,7 @@ a.month:hover{transform:translateY(-3px);box-shadow:0 8px 0 var(--meok)}
 .room-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
 .room .mm{flex:0 0 96px}
 .room .mm svg{display:block;width:96px;height:80px}
+.room .mm img{display:block;width:96px;height:96px;object-fit:contain}
 
 /* 세 친구 */
 .friends{background:var(--hanji-deep);border-top:3px solid var(--meok);border-bottom:3px solid var(--meok)}
@@ -439,6 +440,8 @@ const recent = later.filter(x => x.begun).sort((a, b) => b.p.updated - a.p.updat
 const recentWins = recent && recent.p.updated >= readUpdated(STORE_KEY);
 
 /* ---- 달 그림: 한글 첫 달과 같은 방식 (오른쪽부터 차오름) ---- */
+/* 아직 빛이 덜 찬 달에는 떡방아 찧는 토끼 그림자가 희미하게 보입니다. 로고와 같은 토끼를 작게 줄였습니다. */
+const RABBIT = `<g transform="scale(0.3)" fill="#F5E6BD" opacity="0.28"><path d="M80 140 L132 140 L125 164 L87 164 Z"/><ellipse cx="98" cy="118" rx="19" ry="25"/><circle cx="90" cy="88" r="13"/><path d="M83 78 C76 60 74 44 81 38 C88 44 88 62 90 77 Z"/><path d="M95 78 C93 60 96 44 102 40 C106 48 101 64 99 78 Z"/></g>`;
 function moon(f, opts){
   opts = opts || {};
   const cx = 30, cy = 30, r = 24;
@@ -459,7 +462,7 @@ function moon(f, opts){
       <circle cx="${cx}" cy="${cy}" r="${r}" fill="#CFC1A0" stroke="#8C7F63" stroke-width="2"/></svg>`;
   }
   return `<svg viewBox="0 0 60 60" aria-hidden="true">
-    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#17324A"/>${lit}
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="#17324A"/>${f < 1 ? RABBIT : ''}${lit}
     <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#221F1C" stroke-width="2.5"/></svg>`;
 }
 
@@ -619,7 +622,7 @@ FRIENDS.forEach(f => {
 /* ---- 받아쓰기실 카드 ---- */
 (function(){
   const fig = document.getElementById('roomDictFig');
-  if(fig && FRIENDS[0]) fig.innerHTML = FRIENDS[0].svg;
+  if(fig) fig.innerHTML = '<img src="assets/chars/tori.webp?v=2" alt="" aria-hidden="true" decoding="async">';
   let d = null;
   try { d = JSON.parse(window.localStorage.getItem('daltokki:v1:dictation') || 'null'); } catch(e) {}
   const now = new Date();
