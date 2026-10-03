@@ -497,8 +497,8 @@ const P = [
   ['^<O> 묶음, (.+)$', 'Unit {1:o}, {2}', 'Unidad {1:o}, {2}'],
   ['^<O> 묶음$', 'Unit {1:o}', 'Unidad {1:o}'],
   ['^<O> 묶음을 다 채웠어요$', 'You filled Unit {1:o}!', '¡Llenaste la unidad {1:o}!'],
-  ['^<O> 밤, (.+), 별 (\\d)개$', 'Night {1:o}, {2}, {3} stars', 'Noche {1:o}, {2}, {3} estrellas'],
-  ['^<O> 밤, (.+), 아직 안 했어요$', 'Night {1:o}, {2}, not done yet', 'Noche {1:o}, {2}, sin hacer'],
+  ['^<O> 밤, (.+), 별 (\\d)개$', 'Night {1:o}, {2:t}, {3} stars', 'Noche {1:o}, {2:t}, {3} estrellas'],
+  ['^<O> 밤, (.+), 아직 안 했어요$', 'Night {1:o}, {2:t}, not done yet', 'Noche {1:o}, {2:t}, sin hacer'],
   ['^<O> 밤 시작하기$', 'Start Night {1:o}', 'Empezar la noche {1:o}'],
   ['^<O> 밤부터 해요$', 'Start at Night {1:o}', 'Empieza en la noche {1:o}'],
   ['^이제 <O> 밤으로 가자\\.$', 'Now let\u2019s go to Night {1:o}.', 'Ahora vamos a la noche {1:o}.'],
@@ -532,7 +532,8 @@ const P = [
   [/^이 화면에서는 소리가 나지 않을 수 있어요\. 메뉴에서 ‘브라우저로 열기’를 누르거나, 주소를 복사해서 (사파리|크롬)에 붙여 넣어 주세요\.$/,
     'Sound may not work on this screen. Choose \u2018Open in browser\u2019 from the menu, or copy the address and paste it into {1:t}.',
     'Es posible que el sonido no funcione en esta pantalla. Elija \u2018Abrir en el navegador\u2019 en el menú, o copie la dirección y péguela en {1:t}.']
-].map(([re, en, es]) => [typeof re === 'string' ? new RegExp(re.replace(/<[COM]>/g, t => TOK[t])) : re, en, es]);
+].map(compile);
+function compile([re, en, es]){ return [typeof re === 'string' ? new RegExp(re.replace(/<[COM]>/g, t => TOK[t])) : re, en, es]; }
 
 /* ---- 번역 ---- */
 const HANGUL = /[\u3131-\u318E\uAC00-\uD7A3]/;
@@ -563,10 +564,12 @@ function fill(tpl, m){
     }
     if(mod === 't'){ const t = core(v); return t == null ? v : t; }
     if(mod === 'c') return stripCopula(v);
+    /* "라벨 3번, 라벨 2번" 목록: 라벨마다 번역하고 수는 괄호에 */
+    if(mod === 'x') return v.replace(/(.+?) (\d+)번(, |$)/g, (_, a, n, sep) => { const t = core(a); return (t == null ? a : t) + ' (' + n + ')' + (sep ? '; ' : ''); });
     return v;
   });
 }
-function core(k){
+function core(k, whole){
   const d = D[k] || (/[.]$/.test(k) && D[k.slice(0, -1)] ? D[k.slice(0, -1)].map(x => x + '.') : null);
   if(d) return d[LI()];
   for(const [re, en, es] of P){
@@ -574,14 +577,19 @@ function core(k){
     /* 한 묶음이 여러 문장을 삼키면 이 틀이 아닙니다. 문장마다 나눠서 다시 봅니다. */
     if(m && !m.slice(1).some(g => g && /[.!?]\s/.test(g))) return fill(lang === 'es' ? es : en, m);
   }
-  /* 여러 문장이 붙어 있으면 문장마다 번역합니다. 사전에 없는 문장은 그대로 둡니다. */
+  if(whole) return null;
+  /* 여러 문장이 붙어 있으면 앞에서부터 가장 긴 덩어리를 찾아 번역합니다.
+     두 문단이 이어 붙은 글도 문단마다 번역되고, 사전에 없는 문장은 그대로 둡니다. */
   const parts = k.replace(/([.!?])\s+/g, '$1\u0001').split('\u0001');
-  if(parts.length > 1){
-    let any = false;
-    const out = parts.map(p => { const t = core(p); if(t != null){ any = true; return t; } return p; });
-    return any ? out.join(' ') : null;
+  if(parts.length < 2) return null;
+  const out = [];
+  let i = 0, any = false;
+  while(i < parts.length){
+    let j = parts.length, t = null;
+    for(; j > i; j--){ t = core(parts.slice(i, j).join(' '), true); if(t != null) break; }
+    if(t != null){ out.push(t); any = true; i = j; } else { out.push(parts[i]); i++; }
   }
-  return null;
+  return any ? out.join(' ') : null;
 }
 const cache = {en: new Map(), es: new Map()};
 function tr(s){
@@ -747,5 +755,12 @@ if(lang !== 'ko'){ document.documentElement.lang = lang; watch(true); if(documen
 if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', () => { mount(); apply(); });
 else { mount(); apply(); }
 
-window.DAL_I18N = {get lang(){ return lang; }, set: setLang, t: tr};
+/* 달마다 따로 둔 사전(assets/lang/*.js)이 여기에 더합니다. 문장 틀은 앞에 끼워서 먼저 봅니다. */
+function add(dict, pats){
+  Object.assign(D, dict || {});
+  if(pats && pats.length) P.unshift(...pats.map(compile));
+  cache.en.clear(); cache.es.clear();
+  if(lang !== 'ko' && document.body) walk(document.body);
+}
+window.DAL_I18N = {get lang(){ return lang; }, set: setLang, t: tr, add};
 })();
