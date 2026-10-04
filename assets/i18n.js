@@ -172,7 +172,7 @@ const D = {
   '처음 배우는 아이라면': ['If your child is just starting', 'Si su hijo empieza desde cero'],
   '첫째 달 첫째 밤부터 순서대로 가면 됩니다. 로마자 표기 없이 소리와 글자만으로 배우도록 만들었습니다. 첫째 달에서 소리 힌트를 켜면 영어식 발음 힌트가 잠깐 도움을 줍니다. 둘째 달부터는 낱말과 문장마다 “뜻 보기”로 영어 뜻을 볼 수 있습니다.': [
     'Start at Night 1 of the First Moon and go in order. Lessons use sounds and letters only, without romanization. In the First Moon, turning on Sound hints shows a brief English-style pronunciation hint. From the Second Moon on, every word and sentence has a \u201cMeaning\u201d button that shows its English meaning.',
-    'Empiece en la noche 1 de la primera luna y siga en orden. Se aprende solo con sonidos y letras, sin romanización. En la primera luna, al activar las pistas de sonido aparece una breve pista de pronunciación al estilo inglés. Desde la segunda luna, cada palabra y oración tiene un botón \u201cSignificado\u201d que muestra su significado en inglés.'],
+    'Empiece en la noche 1 de la primera luna y siga en orden. Se aprende solo con sonidos y letras, sin romanización. En la primera luna, al activar las pistas de sonido aparece una breve pista de pronunciación al estilo inglés. Desde la segunda luna, cada palabra y oración tiene un botón \u201cSignificado\u201d que muestra su significado en español.'],
   '셋째 밤은 가족과 함께': ['The third night is for family', 'La tercera noche es en familia'],
   '묶음의 셋째 밤마다 집에서 해 볼 가족 과제가 있습니다. 할머니 할아버지께 인사하기, 밥상 인사, 날씨 알려 드리기처럼 배운 말을 실제로 써 보는 일입니다. 과제 화면의 부모님 안내에 방법을 적어 두었고, 인쇄해서 냉장고에 붙여 두실 수도 있습니다. 친구에게 하는 말과 어른께 하는 말을 구별하는 연습이 달마다 이어지니, 집에서도 어른께는 높임말로 답하도록 이끌어 주세요.': [
     'The third night of every unit has a family task to try at home, such as greeting grandparents, saying the mealtime phrases, or telling an adult about the weather. The parent note on the task screen explains how, and you can print it and put it on the fridge. Every moon keeps practicing the difference between talking to friends and talking to adults, so please encourage your child to answer adults with polite speech at home too.',
@@ -432,8 +432,8 @@ const D = {
   '다 들었어요. 이제 글자 보기를 눌러 봐요.': ['Done listening. Now press Show text.', 'Ya escuchaste. Ahora pulsa Ver texto.'],
   '글자 보기': ['Show text', 'Ver texto'],
   '글자 숨기기': ['Hide text', 'Ocultar texto'],
-  '영어 뜻 보기': ['Show English', 'Ver en inglés'],
-  '영어 뜻 숨기기': ['Hide English', 'Ocultar inglés'],
+  '영어 뜻 보기': ['Show English', 'Ver significado'],
+  '영어 뜻 숨기기': ['Hide English', 'Ocultar significado'],
   '했어요': ['I did it', '¡Lo hice!'],
   '달토끼 가족 과제': ['Dal Tokki family task', 'Tarea en familia de Dal Tokki'],
   '잘했어요': ['Great job!', '¡Muy bien!'],
@@ -494,7 +494,7 @@ const P = [
   [/^지금까지 (\d+)밤 다녀왔어요\.$/, '{1} outing nights so far.', '{1} noches de paseo hasta ahora.'],
 
   ['^<O> 밤 차례야\\.$', 'It\u2019s time for Night {1:o}.', 'Te toca la noche {1:o}.'],
-  ['^<O> 묶음, (.+)$', 'Unit {1:o}, {2}', 'Unidad {1:o}, {2}'],
+  ['^<O> 묶음, (.+)$', 'Unit {1:o}, {2:t}', 'Unidad {1:o}, {2:t}'],
   ['^<O> 묶음$', 'Unit {1:o}', 'Unidad {1:o}'],
   ['^<O> 묶음을 다 채웠어요$', 'You filled Unit {1:o}!', '¡Llenaste la unidad {1:o}!'],
   ['^<O> 밤, (.+), 별 (\\d)개$', 'Night {1:o}, {2:t}, {3} stars', 'Noche {1:o}, {2:t}, {3} estrellas'],
@@ -525,7 +525,7 @@ const P = [
   [/^(.+?)(?:을|를) 눌러 봐요\.$/, 'Tap {1}.', 'Toca {1}.'],
   [/^(.+) 칸을 골라요$/, 'Choose a line: {1}', 'Elige una línea: {1}'],
   [/^(\d+)\. 보내는 사람$/, '{1}. Sender', '{1}. Remitente'],
-  [/^뜻: (.+)$/, 'Meaning: {1}', 'Significado: {1}'],
+  [/^뜻: (.+)$/, 'Meaning: {1}', 'Significado: {1:t}'],
   [/^(.+)의 말 듣기$/, 'Listen to {1}', 'Escuchar a {1}'],
   [/^(.+) 듣기$/, 'Listen: {1}', 'Escuchar: {1}'],
   [/^뒤에 ‘(.+)’를 붙이면 \[(.+)\](?:으로|로) 소리 나지\.$/, 'Add \u2018{1}\u2019 after it and it sounds like [{2}].', 'Si le añades \u2018{1}\u2019, suena como [{2}].'],
@@ -537,6 +537,10 @@ function compile([re, en, es]){ return [typeof re === 'string' ? new RegExp(re.r
 
 /* ---- 번역 ---- */
 const HANGUL = /[\u3131-\u318E\uAC00-\uD7A3]/;
+/* 스페인어 모드에서 영어 뜻을 스페인어 뜻으로 바꾸는 사전 (assets/lang/meanings-es.js) */
+const ESM = Object.create(null);
+function isEsMeaning(s){ return lang === 'es' && !!ESM[s.trim()]; }
+function worth(s){ return !!s && (HANGUL.test(s) || isEsMeaning(s)); }
 function hasJong(ch){ const c = ch.charCodeAt(0); return c >= 0xAC00 && c <= 0xD7A3 && (c - 0xAC00) % 28 > 0; }
 function isSyl(ch){ const c = ch.charCodeAt(0); return c >= 0xAC00 && c <= 0xD7A3; }
 /* "산이야", "아이야", "닭이란다" 에서 정답 낱말만 떼어 냅니다. */
@@ -570,6 +574,7 @@ function fill(tpl, m){
   });
 }
 function core(k, whole){
+  if(lang === 'es' && ESM[k]) return ESM[k];
   const d = D[k] || (/[.]$/.test(k) && D[k.slice(0, -1)] ? D[k.slice(0, -1)].map(x => x + '.') : null);
   if(d) return d[LI()];
   for(const [re, en, es] of P){
@@ -593,7 +598,7 @@ function core(k, whole){
 }
 const cache = {en: new Map(), es: new Map()};
 function tr(s){
-  if(lang === 'ko' || !s || !HANGUL.test(s)) return s;
+  if(lang === 'ko' || !worth(s)) return s;
   const C = cache[lang];
   if(C.has(s)) return C.get(s);
   let out;
@@ -601,7 +606,7 @@ function tr(s){
   if(raw) out = raw[LI()];
   else {
     const lead = s.match(/^\s*/)[0], trail = s.slice(lead.length).match(/\s*$/)[0];
-    const t = core(s.slice(lead.length, s.length - trail.length));
+    const t = core(s.slice(lead.length, s.length - trail.length).replace(/\s*\n\s*/g, ' '));
     out = t == null ? s : lead + t + trail;
   }
   C.set(s, out);
@@ -618,7 +623,7 @@ function doText(n){
   const cur = n.nodeValue;
   let r = textRec.get(n);
   if(!r || cur !== r.out){
-    if(!HANGUL.test(cur) && !r) return;
+    if(!worth(cur) && !r) return;
     r = {ko: cur};
     textRec.set(n, r);
   }
@@ -633,7 +638,7 @@ function doAttrs(el){
     const cur = el.getAttribute(a);
     let r = rec && rec[a];
     if(!r || cur !== r.out){
-      if(!HANGUL.test(cur) && !r) continue;
+      if(!worth(cur) && !r) continue;
       if(!rec){ rec = {}; attrRec.set(el, rec); }
       r = rec[a] = {ko: cur};
     }
@@ -762,5 +767,10 @@ function add(dict, pats){
   cache.en.clear(); cache.es.clear();
   if(lang !== 'ko' && document.body) walk(document.body);
 }
-window.DAL_I18N = {get lang(){ return lang; }, set: setLang, t: tr, add};
+function addEs(dict){
+  Object.assign(ESM, dict || {});
+  cache.es.clear();
+  if(lang === 'es' && document.body) walk(document.body);
+}
+window.DAL_I18N = {get lang(){ return lang; }, set: setLang, t: tr, add, addEs};
 })();

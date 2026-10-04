@@ -114,7 +114,7 @@ DAL_I18N.add({
   '배운 글자로 만든 말': ['Words made from letters you learned', 'Palabras con las letras que aprendiste'],
   '내가 모아 온 말들이야. 카드를 누르면 소리가 나고, 뜻 보기를 누르면 영어 뜻이 나와.': [
     'These are words I collected. Tap a card to hear it, and tap Meaning to see it in English.',
-    'Estas son palabras que coleccioné. Toca una tarjeta para oírla y toca Significado para verla en inglés.'],
+    'Estas son palabras que coleccioné. Toca una tarjeta para oírla y toca Significado para ver qué significa.'],
   '소리와 글자가 달라요': ['Sound and spelling differ', 'El sonido y la escritura no coinciden'],
   '옛날 이야기 하나 해 주마. 왼쪽은 쓰는 모양이고, 오른쪽은 실제로 나는 소리란다. 듣기를 눌러서 귀로도 확인해 보거라.': [
     'Let me tell you an old story. On the left is how it\u2019s written, and on the right is how it really sounds. Press Listen to check with your ears too.',
